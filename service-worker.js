@@ -2,10 +2,7 @@ const CACHE_NAME = 'calendar-cache-v1';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/style.css',
-  '/script.js',
   '/manifest.json',
-  '/icons/icon-192.png',
   '/icons/icon-512.png'
 ];
 
