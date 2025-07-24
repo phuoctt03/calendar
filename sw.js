@@ -37,3 +37,10 @@ self.addEventListener('push', function(event) {
     self.registration.showNotification(title, options)
   );
 });
+
+// Mở ứng dụng
+self.addEventListener('notificationclick', function(event) {
+  if (event.action === 'open') {
+    event.waitUntil(clients.openWindow('/calendar'));
+  }
+});
