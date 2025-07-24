@@ -3,7 +3,8 @@ const urlsToCache = [
   '/calendar/',
   '/calendar/index.html',
   '/calendar/manifest.json',
-  '/calendar/icons/icon-512.png'
+  '/calendar/icons/icon-512.png',
+  '/calendar/icons/icon-192.png'
 ];
 
 // Caching các file cần thiết khi cài đặt
