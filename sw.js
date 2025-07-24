@@ -5,12 +5,12 @@ self.addEventListener('notificationclick', function(event) {
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true }).then(function(clientList) {
       for (const client of clientList) {
-        if (client.url.includes('/calendar') && 'focus' in client) {
+        if (client.url.includes('/') && 'focus' in client) {
           return client.focus();
         }
       }
       if (clients.openWindow) {
-        return clients.openWindow('/calendar');
+        return clients.openWindow('/');
       }
     })
   );
@@ -36,11 +36,4 @@ self.addEventListener('push', function(event) {
   event.waitUntil(
     self.registration.showNotification(title, options)
   );
-});
-
-// Mở ứng dụng
-self.addEventListener('notificationclick', function(event) {
-  if (event.action === 'open') {
-    event.waitUntil(clients.openWindow('/'));
-  }
 });
