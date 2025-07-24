@@ -117,6 +117,96 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
+        /* Styles cho phần quản lý ngày đặc biệt */
+        .special-dates-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .special-dates-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .add-special-date {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .special-dates-list {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .special-date-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .special-date-item.highlighted {
+            border-left-color: #feca57;
+        }
+
+        .special-date-item.highligh {
+            border-left-color: #48dbfb;
+        }
+
+        .special-date-item.highlighlunar {
+            border-left-color: #ff9ff3;
+        }
+
+        .special-date-item.highlighgio {
+            border-left-color: #ff6b6b;
+        }
+
+        .special-date-item.highlighluong {
+            border-left-color: #00d2d3;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .delete-btn:hover {
+            background: #ee5a24;
+        }
+
+        .toggle-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .hidden {
+            display: none;
+        }
+
         .navigation {
             background: #fff;
             padding: 25px;
@@ -273,6 +363,10 @@
         }
 
         @media (max-width: 768px) {
+            .special-dates-container {
+                grid-template-columns: 1fr;
+            }
+            
             .calendar-container {
                 padding: 15px;
             }
@@ -366,6 +460,40 @@
             </div>
         </div>
 
+        <!-- Phần quản lý ngày đặc biệt -->
+        <div class="special-dates-section">
+            <button class="toggle-btn" onclick="toggleSpecialDatesSection()">
+                📝 Quản Lý Ngày Đặc Biệt
+            </button>
+            
+            <div id="specialDatesContainer" class="special-dates-container hidden">
+                <div class="add-special-date">
+                    <h3>➕ Thêm Ngày Đặc Biệt</h3>
+                    <div class="input-group">
+                        <input type="number" id="specialDay" placeholder="Ngày" min="1" max="31">
+                        <input type="number" id="specialMonth" placeholder="Tháng" min="1" max="12">
+                        <input type="number" id="specialYear" placeholder="Năm" min="1900" max="2100">
+                    </div>
+                    <div class="input-group">
+                        <select id="dateType">
+                            <option value="highlighted">Ngày Đặc Biệt (Vàng)</option>
+                            <option value="highligh">Ngày Quan Trọng (Xanh)</option>
+                            <option value="highlighlunar">Ngày Âm Lịch (Hồng)</option>
+                            <option value="highlighgio">Ngày Giỗ (Đỏ)</option>
+                            <option value="highlighluong">Ngày Lễ Lớn (Xanh Lá)</option>
+                        </select>
+                    </div>
+                    <input type="text" id="specialNote" placeholder="Ghi chú (tùy chọn)" style="width: 100%; margin-bottom: 15px; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px;">
+                    <button class="search-btn" onclick="addSpecialDate()">Thêm Ngày</button>
+                </div>
+
+                <div class="special-dates-list">
+                    <h3>📋 Danh Sách Ngày Đặc Biệt</h3>
+                    <div id="specialDatesList"></div>
+                </div>
+            </div>
+        </div>
+
         <div class="navigation">
             <button class="nav-btn" onclick="now()">📅 Hiện Tại</button>
             <button class="nav-btn" onclick="prevYear()">⏪ Năm Trước</button>
@@ -396,17 +524,19 @@
 
         <div id="calendar" class="calendar-container"></div>
     </div>
+
     <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/calendar/service-worker.js')
-          .then(function (registration) {
-            console.log('Service Worker registered with scope:', registration.scope);
-          })
-          .catch(function (error) {
-            console.log('Service Worker registration failed:', error);
-          });
-      }
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/calendar/service-worker.js')
+                .then(function (registration) {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                })
+                .catch(function (error) {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
     </script>
+
     <script>
         // Biến toàn cục
         let monthOffset = 0;
@@ -414,11 +544,175 @@
         let currentMonth = 0;
         let currentYear = 0;
         
-        // Danh sách các ngày cần highlight (có thể tùy chỉnh)
-        const highlightedDates = []; // Danh sách ngày dương lịch cần highlight VD: '2024-12-25', '2024-01-01', '2024-09-02'
-        const highlighted = []; // Danh sách ngày dương lịch cần highlight VD: '2024-12-24', '2024-12-31'
-        const highlightedlunar = []; // Danh sách ngày âm lịch cần highlight VD: '01-01', '01-15', '08-15'
-        const highlightedluong = []; // Danh sách ngày lễ lớn cần highlight VD: '2024-03-08', '2024-05-01'
+        // Danh sách các ngày cần highlight (sẽ được load từ localStorage)
+        let highlightedDates = [];
+        let highlighted = [];
+        let highlightedlunar = [];
+        let highlightedgio = [];
+        let highlighluong = [];
+
+        // Load dữ liệu từ localStorage khi trang được tải
+        function loadSpecialDates() {
+            const savedDates = localStorage.getItem('specialDates');
+            if (savedDates) {
+                const dates = JSON.parse(savedDates);
+                highlightedDates = dates.highlighted || [];
+                highlighted = dates.highligh || [];
+                highlightedlunar = dates.highlighlunar || [];
+                highlightedgio = dates.highlighgio || [];
+                highlighluong = dates.highlighluong || [];
+            }
+            updateSpecialDatesList();
+        }
+
+        // Lưu dữ liệu vào localStorage
+        function saveSpecialDates() {
+            const dates = {
+                highlighted: highlightedDates,
+                highligh: highlighted,
+                highlighlunar: highlightedlunar,
+                highlighgio: highlightedgio,
+                highlighluong: highlighluong
+            };
+            localStorage.setItem('specialDates', JSON.stringify(dates));
+        }
+
+        // Toggle hiển thị phần quản lý ngày đặc biệt
+        function toggleSpecialDatesSection() {
+            const container = document.getElementById('specialDatesContainer');
+            container.classList.toggle('hidden');
+        }
+
+        // Thêm ngày đặc biệt
+        function addSpecialDate() {
+            const day = parseInt(document.getElementById('specialDay').value);
+            const month = parseInt(document.getElementById('specialMonth').value);
+            const year = parseInt(document.getElementById('specialYear').value);
+            const type = document.getElementById('dateType').value;
+            const note = document.getElementById('specialNote').value;
+
+            if (!day || !month || !year) {
+                alert('Vui lòng nhập đầy đủ ngày, tháng, năm!');
+                return;
+            }
+
+            if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > 2100) {
+                alert('Ngày tháng năm không hợp lệ!');
+                return;
+            }
+
+            const formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dateInfo = {
+                date: formattedDate,
+                day: day,
+                month: month,
+                year: year,
+                note: note || '',
+                type: type
+            };
+
+            // Thêm vào mảng tương ứng
+            switch(type) {
+                case 'highlighted':
+                    if (!highlightedDates.find(d => d.date === formattedDate)) {
+                        highlightedDates.push(dateInfo);
+                    }
+                    break;
+                case 'highligh':
+                    if (!highlighted.find(d => d.date === formattedDate)) {
+                        highlighted.push(dateInfo);
+                    }
+                    break;
+                case 'highlighlunar':
+                    if (!highlightedlunar.find(d => d.date === formattedDate)) {
+                        highlightedlunar.push(dateInfo);
+                    }
+                    break;
+                case 'highlighgio':
+                    if (!highlightedgio.find(d => d.date === formattedDate)) {
+                        highlightedgio.push(dateInfo);
+                    }
+                    break;
+                case 'highlighluong':
+                    if (!highlighluong.find(d => d.date === formattedDate)) {
+                        highlighluong.push(dateInfo);
+                    }
+                    break;
+            }
+
+            saveSpecialDates();
+            updateSpecialDatesList();
+            createCalendar();
+
+            // Clear form
+            document.getElementById('specialDay').value = '';
+            document.getElementById('specialMonth').value = '';
+            document.getElementById('specialYear').value = '';
+            document.getElementById('specialNote').value = '';
+
+            alert('Đã thêm ngày đặc biệt thành công!');
+        }
+
+        // Xóa ngày đặc biệt
+        function removeSpecialDate(date, type) {
+            switch(type) {
+                case 'highlighted':
+                    highlightedDates = highlightedDates.filter(d => d.date !== date);
+                    break;
+                case 'highligh':
+                    highlighted = highlighted.filter(d => d.date !== date);
+                    break;
+                case 'highlighlunar':
+                    highlightedlunar = highlightedlunar.filter(d => d.date !== date);
+                    break;
+                case 'highlighgio':
+                    highlightedgio = highlightedgio.filter(d => d.date !== date);
+                    break;
+                case 'highlighluong':
+                    highlighluong = highlighluong.filter(d => d.date !== date);
+                    break;
+            }
+
+            saveSpecialDates();
+            updateSpecialDatesList();
+            createCalendar();
+        }
+
+        // Cập nhật danh sách ngày đặc biệt
+        function updateSpecialDatesList() {
+            const listContainer = document.getElementById('specialDatesList');
+            listContainer.innerHTML = '';
+
+            const allDates = [
+                ...highlightedDates.map(d => ({...d, type: 'highlighted', typeName: 'Ngày Đặc Biệt'})),
+                ...highlighted.map(d => ({...d, type: 'highligh', typeName: 'Ngày Quan Trọng'})),
+                ...highlightedlunar.map(d => ({...d, type: 'highlighlunar', typeName: 'Ngày Âm Lịch'})),
+                ...highlightedgio.map(d => ({...d, type: 'highlighgio', typeName: 'Ngày Giỗ'})),
+                ...highlighluong.map(d => ({...d, type: 'highlighluong', typeName: 'Ngày Lễ Lớn'}))
+            ];
+
+            // Sắp xếp theo ngày
+            allDates.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            allDates.forEach(dateInfo => {
+                const item = document.createElement('div');
+                item.className = `special-date-item ${dateInfo.type}`;
+                item.innerHTML = `
+                    <div>
+                        <strong>${dateInfo.day}/${dateInfo.month}/${dateInfo.year}</strong>
+                        <br>
+                        <small>${dateInfo.typeName}</small>
+                        ${dateInfo.note ? `<br><em>${dateInfo.note}</em>` : ''}
+                    </div>
+                    <button class="delete-btn" onclick="removeSpecialDate('${dateInfo.date}', '${dateInfo.type}')">Xóa</button>
+                `;
+                listContainer.appendChild(item);
+            });
+
+            if (allDates.length === 0) {
+                listContainer.innerHTML = '<p style="text-align: center; color: #6c757d;">Chưa có ngày đặc biệt nào được lưu.</p>';
+            }
+        }
 
         // Hàm kiểm tra năm nhuận
         function isLeapYear(year) {
@@ -696,7 +990,6 @@
             const today = new Date();
             let year = today.getFullYear() + Math.floor((monthOffset+today.getMonth()) / 12) + yearoffset;
             let month = (today.getMonth() + monthOffset) % 12;
-
             if (month < 0) {
                 month += 12;
             } else if (month > 11) {
@@ -748,9 +1041,9 @@
                         break;
                     } else {
                         const lunarDate = convertSolar2Lunar(date, month + 1, year, 7.0);
-
                         const cell = document.createElement("td");
                         cell.textContent = date;
+
                         if (year === today.getFullYear() && month === today.getMonth() && date === today.getDate()) {
                             cell.classList.add("today");
                         }
@@ -758,31 +1051,38 @@
                         const lunarCell = document.createElement("div");
                         lunarCell.classList.add("lunar-date");
                         lunarCell.textContent = lunarDate[0] + "/" + lunarDate[1];
-
                         cell.appendChild(lunarCell);
 
                         const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-                        if (highlightedDates.includes(formattedDate)) {
+
+                        // Kiểm tra các ngày đặc biệt đã lưu
+                        if (highlightedDates.find(d => d.date === formattedDate)) {
                             cell.classList.add("highlighted");
                         }
-                        const formatted = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-                        if (highlighted.includes(formatted)) {
+                        if (highlighted.find(d => d.date === formattedDate)) {
                             cell.classList.add("highligh");
                         }
-                        
-                        const isFirstDay = isFirstDayOfMonth(date, month, year, 7.0);
-                        const isFullMoon = isFullMoonDay(date, month, year, 7.0);
-                        const lunarFormatted = `${String(lunarDate[1]).padStart(2, '0')}-${String(lunarDate[0]).padStart(2, '0')}`;
-                        if (isFirstDay || isFullMoon || highlightedlunar.includes(lunarFormatted)) {
-                            lunarCell.classList.add("highlighlunar");
-                        }
-                        if (highlightedlunar.includes(lunarFormatted)) {
-                            lunarCell.classList.add("highlighgio");
-                            lunarCell.textContent = lunarDate[0] + "/" + lunarDate[1] + "(Giỗ)";
-                        }
-                        if (highlightedluong.includes(formatted)) {
+                        if (highlighluong.find(d => d.date === formattedDate)) {
                             cell.classList.add("highlighluong");
                         }
+
+                        const isFirstDay = isFirstDayOfMonth(date, month, year, 7.0);
+                        const isFullMoon = isFullMoonDay(date, month, year, 7.0);
+                        
+                        if (isFirstDay || isFullMoon) {
+                            lunarCell.classList.add("highlighlunar");
+                        }
+
+                        // Kiểm tra ngày âm lịch đặc biệt và ngày giỗ
+                        if (highlightedlunar.find(d => d.date === formattedDate)) {
+                            lunarCell.classList.add("highlighlunar");
+                        }
+                        if (highlightedgio.find(d => d.date === formattedDate)) {
+                            lunarCell.classList.add("highlighgio");
+                            const gioInfo = highlightedgio.find(d => d.date === formattedDate);
+                            lunarCell.textContent = lunarDate[0] + "/" + lunarDate[1] + (gioInfo.note ? ` (${gioInfo.note})` : " (Giỗ)");
+                        }
+
                         row.appendChild(cell);
                         date++;
                     }
@@ -792,7 +1092,6 @@
 
             table.appendChild(thead);
             table.appendChild(tbody);
-
             calendarContainer.innerHTML = '';
             calendarContainer.appendChild(table);
 
@@ -829,18 +1128,17 @@
         function displayYearCalendar() {
             const calendarContainer = document.getElementById("calendar");
             let year = currentYear;
-        
+            
             calendarContainer.innerHTML = '';
-        
+            
             const yearCalendarDiv = document.createElement("div");
-        
             for (let month = 0; month < 12; month++) {
                 const monthCell = document.createElement("div");
                 monthCell.classList.add("month-cell");
                 createMonthTable(year, month, monthCell);
                 yearCalendarDiv.appendChild(monthCell);
             }
-        
+            
             calendarContainer.appendChild(yearCalendarDiv);
         }
 
@@ -848,32 +1146,32 @@
             const today = new Date();
             const currentMonth = today.getMonth();
             const currentYear = today.getFullYear();
-        
+            
             const months = [
                 "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
                 "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
             ];
-        
+            
             const daysInMonth = [
                 31, isLeapYear(year) ? 29 : 28, 31, 30, 31, 30,
                 31, 31, 30, 31, 30, 31
             ];
-        
+            
             const firstDayOfMonth = new Date(year, month, 1);
             let startingDay = firstDayOfMonth.getDay();
             startingDay = (startingDay === 0) ? 6 : startingDay - 1;
-        
+            
             const table = document.createElement("table");
             const thead = document.createElement("thead");
             const tbody = document.createElement("tbody");
-        
+            
             const headerRow = document.createElement("tr");
             const monthHeader = document.createElement("th");
             monthHeader.colSpan = 7;
             monthHeader.textContent = months[month] + " " + year;
             headerRow.appendChild(monthHeader);
             thead.appendChild(headerRow);
-        
+            
             const daysHeaderRow = document.createElement("tr");
             const days = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
             for (const day of days) {
@@ -882,7 +1180,7 @@
                 daysHeaderRow.appendChild(dayHeader);
             }
             thead.appendChild(daysHeaderRow);
-        
+            
             let date = 1;
             for (let i = 0; i < 6; i++) {
                 const row = document.createElement("tr");
@@ -895,54 +1193,67 @@
                     } else {
                         const cell = document.createElement("td");
                         cell.textContent = date;
+
                         if (year === currentYear && month === currentMonth && date === today.getDate()) {
                             cell.classList.add("today");
                         }
-        
+                        
                         const lunarDate = convertSolar2Lunar(date, month + 1, year, 7.0);
-        
+                        
                         const lunarCell = document.createElement("div");
                         lunarCell.classList.add("lunar-date");
                         lunarCell.textContent = lunarDate[0] + "/" + lunarDate[1];
-        
+                        
                         cell.appendChild(lunarCell);
-        
+                        
                         const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-                        if (highlightedDates.includes(formattedDate)) {
+
+                        // Kiểm tra các ngày đặc biệt đã lưu
+                        if (highlightedDates.find(d => d.date === formattedDate)) {
                             cell.classList.add("highlighted");
                         }
-                        const formatted = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-                        if (highlighted.includes(formatted)) {
+                        if (highlighted.find(d => d.date === formattedDate)) {
                             cell.classList.add("highligh");
                         }
-                        const isFirstDay = isFirstDayOfMonth(date, month, year, 7.0);
-                        const isFullMoon = isFullMoonDay(date, month, year, 7.0);
-                        const lunarFormatted = `${String(lunarDate[1]).padStart(2, '0')}-${String(lunarDate[0]).padStart(2, '0')}`;
-                        if (isFirstDay || isFullMoon || highlightedlunar.includes(lunarFormatted)) {
-                            lunarCell.classList.add("highlighlunar");
-                        }
-                        if (highlightedlunar.includes(lunarFormatted)) {
-                            lunarCell.classList.add("highlighgio");
-                            lunarCell.textContent = lunarDate[0] + "/" + lunarDate[1] + "(Giỗ)";
-                        }
-                        if (highlightedluong.includes(formatted)) {
+                        if (highlighluong.find(d => d.date === formattedDate)) {
                             cell.classList.add("highlighluong");
                         }
+
+                        const isFirstDay = isFirstDayOfMonth(date, month, year, 7.0);
+                        const isFullMoon = isFullMoonDay(date, month, year, 7.0);
+                        
+                        if (isFirstDay || isFullMoon) {
+                            lunarCell.classList.add("highlighlunar");
+                        }
+
+                        // Kiểm tra ngày âm lịch đặc biệt và ngày giỗ
+                        if (highlightedlunar.find(d => d.date === formattedDate)) {
+                            lunarCell.classList.add("highlighlunar");
+                        }
+                        if (highlightedgio.find(d => d.date === formattedDate)) {
+                            lunarCell.classList.add("highlighgio");
+                            const gioInfo = highlightedgio.find(d => d.date === formattedDate);
+                            lunarCell.textContent = lunarDate[0] + "/" + lunarDate[1] + (gioInfo.note ? ` (${gioInfo.note})` : " (Giỗ)");
+                        }
+
                         row.appendChild(cell);
                         date++;
                     }
                 }
                 tbody.appendChild(row);
             }
-        
+            
             table.appendChild(thead);
             table.appendChild(tbody);
-        
+            
             cell.appendChild(table);
         }
 
         // Khởi tạo lịch khi trang được tải
-        document.addEventListener("DOMContentLoaded", createCalendar);
+        document.addEventListener("DOMContentLoaded", function() {
+            loadSpecialDates();
+            createCalendar();
+        });
     </script>
 </body>
 </html>
