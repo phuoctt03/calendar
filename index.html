@@ -1311,19 +1311,7 @@
 
         // Hiển thị thông báo test
         function showTestNotification() {
-            alert('test thông báo');
-
-            if (!('serviceWorker' in navigator)) {
-              alert('Trình duyệt không hỗ trợ Service Worker');
-              return;
-            }
-            
             navigator.serviceWorker.getRegistration().then(function(reg) {
-              if (!reg) {
-                alert('Không tìm thấy Service Worker');
-                return;
-              }
-            
               reg.showNotification('🌙 Lịch Âm Dương', {
                   body: 'Thông báo đã được bật thành công! Bạn sẽ nhận được thông báo về các ngày đặc biệt.',
                   icon: '/calendar/icons/icon-512.png',
@@ -1336,22 +1324,6 @@
                   ]
                 });
               });
-            
-            const notification = new Notification('🌙 Lịch Âm Dương', {
-                body: 'Thông báo đã được bật thành công! Bạn sẽ nhận được thông báo về các ngày đặc biệt.',
-                icon: '/calendar/icons/icon-512.png',
-                badge: '/calendar/icons/icon-512.png',
-                tag: 'test-notification'
-            });
-
-            notification.onclick = function() {
-                window.focus();
-                notification.close();
-            };
-
-            setTimeout(() => {
-                notification.close();
-            }, 5000);
         }
 
         // Bắt đầu kiểm tra hàng ngày
@@ -1409,60 +1381,39 @@
             const eventNames = events.map(e => e.name).join(', ');
             const eventTypes = events.map(e => getEventTypeIcon(e.type)).join('');
             
-            const notification = new Notification(`${eventTypes} Hôm nay có sự kiện đặc biệt!`, {
-                body: `📅 ${eventNames}`,
-                icon: '/calendar/icons/icon-512.png',
-                badge: '/calendar/icons/icon-512.png',
-                tag: 'today-events',
-                requireInteraction: true
-            });
-
             navigator.serviceWorker.getRegistration().then(function(reg) {
-              if (reg) {
-                reg.showNotification(`${eventTypes} Hôm nay có sự kiện đặc biệt!`, {
+              reg.showNotification(`${eventTypes} Hôm nay có sự kiện đặc biệt!`, {
                   body: `📅 ${eventNames}`,
                   icon: '/calendar/icons/icon-512.png',
-                  badge: '/calendar/icons/icon-512.png'
+                  badge: '/calendar/icons/icon-512.png',
+                  vibrate: [100, 50, 100],
+                  requireInteraction: true,
+                  tag: 'today-events',
+                  actions: [
+                    { action: 'open', title: 'Mở ứng dụng' }
+                  ]
                 });
-              }
-            });
-
-            notification.onclick = function() {
-                window.focus();
-                notification.close();
-            };
+              });
         }
 
         // Hiển thị thông báo sự kiện ngày mai
         function showTomorrowEventsNotification(events) {
             const eventNames = events.map(e => e.name).join(', ');
             const eventTypes = events.map(e => getEventTypeIcon(e.type)).join('');
-            
-            const notification = new Notification(`${eventTypes} Ngày mai có sự kiện đặc biệt!`, {
-                body: `📅 ${eventNames}`,
-                icon: '/calendar/icons/icon-512.png',
-                badge: '/calendar/icons/icon-512.png',
-                tag: 'tomorrow-events'
-            });
 
             navigator.serviceWorker.getRegistration().then(function(reg) {
-              if (reg) {
-                reg.showNotification(`${eventTypes} Ngày mai có sự kiện đặc biệt!`, {
+              reg.showNotification(`${eventTypes} Ngày mai có sự kiện đặc biệt!`, {
                   body: `📅 ${eventNames}`,
                   icon: '/calendar/icons/icon-512.png',
-                  badge: '/calendar/icons/icon-512.png'
+                  badge: '/calendar/icons/icon-512.png',
+                  vibrate: [100, 50, 100],
+                  requireInteraction: true,
+                  tag: 'tomorrow-events',
+                  actions: [
+                    { action: 'open', title: 'Mở ứng dụng' }
+                  ]
                 });
-              }
-            });
-
-            notification.onclick = function() {
-                window.focus();
-                notification.close();
-            };
-
-            setTimeout(() => {
-                notification.close();
-            }, 10000);
+              });
         }
 
         // Lấy icon theo loại sự kiện
