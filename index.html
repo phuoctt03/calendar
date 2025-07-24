@@ -1312,22 +1312,36 @@
         // Hiển thị thông báo test
         function showTestNotification() {
             alert('test thông báo');
+
+            if (!('serviceWorker' in navigator)) {
+              alert('Trình duyệt không hỗ trợ Service Worker');
+              return;
+            }
+            
+            navigator.serviceWorker.getRegistration().then(function(reg) {
+              if (!reg) {
+                alert('Không tìm thấy Service Worker');
+                return;
+              }
+            
+              reg.showNotification('🌙 Lịch Âm Dương', {
+                  body: 'Thông báo đã được bật thành công! Bạn sẽ nhận được thông báo về các ngày đặc biệt.',
+                  icon: '/calendar/icons/icon-512.png',
+                  badge: '/calendar/icons/icon-512.png',
+                  vibrate: [100, 50, 100],
+                  requireInteraction: true,
+                  tag: 'test-notification',
+                  actions: [
+                    { action: 'open', title: 'Mở ứng dụng' }
+                  ]
+                });
+              });
+            
             const notification = new Notification('🌙 Lịch Âm Dương Nâng Cao', {
                 body: 'Thông báo đã được bật thành công! Bạn sẽ nhận được thông báo về các ngày đặc biệt.',
                 icon: '/calendar/icons/icon-512.png',
                 badge: '/calendar/icons/icon-512.png',
                 tag: 'test-notification'
-            });
-
-            navigator.serviceWorker.getRegistration().then(function(reg) {
-              if (reg) {
-                reg.showNotification('🌙 Lịch Âm Dương', {
-                  body: 'Thông báo đã được bật thành công! Bạn sẽ nhận được thông báo về các ngày đặc biệt.',
-                  icon: '/calendar/icons/icon-512.png',
-                  badge: '/calendar/icons/icon-512.png'
-                });
-              }
-              alert(`req: ${req}`);
             });
 
             notification.onclick = function() {
