@@ -1,9 +1,9 @@
 const CACHE_NAME = 'calendar-cache-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icons/icon-512.png'
+  '/calendar/',
+  '/calendar/index.html',
+  '/calendar/manifest.json',
+  '/calendar/icons/icon-512.png'
 ];
 
 self.addEventListener('install', function (event) {
