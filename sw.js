@@ -41,6 +41,6 @@ self.addEventListener('push', function(event) {
 // Mở ứng dụng
 self.addEventListener('notificationclick', function(event) {
   if (event.action === 'open') {
-    event.waitUntil(clients.openWindow('/calendar'));
+    event.waitUntil(clients.openWindow('/'));
   }
 });
