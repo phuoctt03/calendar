@@ -1311,6 +1311,7 @@
 
         // Hiển thị thông báo test
         function showTestNotification() {
+            alert('test thông báo');
             const notification = new Notification('🌙 Lịch Âm Dương Nâng Cao', {
                 body: 'Thông báo đã được bật thành công! Bạn sẽ nhận được thông báo về các ngày đặc biệt.',
                 icon: '/calendar/icons/icon-512.png',
@@ -1326,6 +1327,7 @@
                   badge: '/calendar/icons/icon-512.png'
                 });
               }
+              alert(`req: ${req}`);
             });
 
             notification.onclick = function() {
